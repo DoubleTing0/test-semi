@@ -1,23 +1,29 @@
 package service;
 
-import java.sql.Connection;	
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import dao.EmpDao;
+import dao.CustomerAddressDao;
+import dao.CustomerDao;
+import dao.PwHistoryDao;
 import util.DBUtil;
-import vo.Emp;
+import vo.Customer;
+import vo.CustomerAddress;
+import vo.PwHistory;
 
-public class EmpService {
+public class CustomerService {
+
+	private CustomerDao customerDao;
+	private CustomerAddressDao customerAddressDao;	// 회원가입 때 사용
+	private PwHistoryDao pwHistoryDao;				// 회원가입 때 사용
 	
-	private EmpDao empDao;
-
-	// EmpList 출력
-	// 사용하는 곳 : EmpListController
-	public ArrayList<Emp> getEmpList(String searchCategory, String searchText, int currentPage, int rowPerPage) {
+	// CustomerList 출력
+	// 사용하는 곳 : CustomerListController
+	public ArrayList<Customer> getCustomerList(String searchCategory, String searchText, int currentPage, int rowPerPage) {
 		
-		ArrayList<Emp> list = null;
+		ArrayList<Customer> list = null;
 		
 		Connection conn = null;
 		
@@ -26,12 +32,12 @@ public class EmpService {
 			conn = DBUtil.getConnection();
 			conn.setAutoCommit(false);
 			
-			list = new ArrayList<Emp>();
+			list = new ArrayList<Customer>();
 			
 			int beginRow = Page.getBeginRow(currentPage, rowPerPage);
 			
-			this.empDao = new EmpDao();
-			list = this.empDao.selectEmpList(conn, searchCategory, searchText, beginRow, rowPerPage);
+			this.customerDao = new CustomerDao();
+			list = this.customerDao.selectCustomerList(conn, searchCategory, searchText, beginRow, rowPerPage);
 			conn.commit();
 			
 		} catch (Exception e) {
@@ -56,9 +62,8 @@ public class EmpService {
 		
 	}
 	
-	
-	// EmpList 페이징
-	// 사용하는 곳 : EmpListController
+	// CustomerList 페이징
+	// 사용하는 곳 : CustomerListController
 	public ArrayList<HashMap<String, Object>> getPage(String searchCategory, String searchText, int currentPage, int rowPerPage) {
 		
 		ArrayList<HashMap<String, Object>> list = null;
@@ -69,11 +74,11 @@ public class EmpService {
 			
 			conn = DBUtil.getConnection();
 			conn.setAutoCommit(false);
-			this.empDao = new EmpDao();
+			this.customerDao = new CustomerDao();
 			
 			// 페이징 처리
 			int pageLength = 10;
-			int count = this.empDao.countEmp(conn, searchCategory, searchText);
+			int count = this.customerDao.countCustomer(conn, searchCategory, searchText);
 			
 			int previousPage = Page.getPreviousPage(currentPage, pageLength);
 			int nextPage = Page.getNextPage(currentPage, pageLength);
@@ -114,11 +119,11 @@ public class EmpService {
 		
 	}
 	
-	// empOne emp 한명의 정보를 출력
-	// 사용하는 곳 : UpdateEmpController
-	public Emp getEmpOne(int empCode) {
+	// customerOne customer 한명의 정보를 출력
+	// 사용하는 곳 : UpdateCustomerController
+	public Customer getCustomerOne(int customerCode) {
 
-		Emp resultEmp = null;
+		Customer resultCustomer = null;
 		
 		Connection conn = null;
 		
@@ -127,8 +132,8 @@ public class EmpService {
 			conn = DBUtil.getConnection();
 			conn.setAutoCommit(false);
 
-			this.empDao = new EmpDao();
-			resultEmp = this.empDao.selectEmpOne(conn, empCode);
+			this.customerDao = new CustomerDao();
+			resultCustomer = this.customerDao.selectCustomerOne(conn, customerCode);
 			conn.commit();
 			
 		} catch (Exception e) {
@@ -149,15 +154,14 @@ public class EmpService {
 			}
 		}
 		
-		return resultEmp;
+		return resultCustomer;
 		
 	}
+
 	
-	
-	
-	// emp 수정
-	// 사용하는 곳 : UpdateEmpController
-	public int updateEmp(Emp emp) {
+	// customer 수정
+	// 사용하는 곳 : UpdateCustomerController
+	public int updateCustomer(Customer customer) {
 
 		int resultRow = 0;
 		
@@ -168,8 +172,47 @@ public class EmpService {
 			conn = DBUtil.getConnection();
 			conn.setAutoCommit(false);
 
-			this.empDao = new EmpDao();
-			resultRow = this.empDao.updateEmp(conn, emp);
+			this.customerDao = new CustomerDao();
+			resultRow = this.customerDao.updateCustomer(conn, customer);
+			conn.commit();
+			
+		} catch (Exception e) {
+			
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			
+			e.printStackTrace();
+			
+		} finally {
+			try {
+				conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return resultRow;
+		
+	}	
+	
+	// customer 삭제
+	// 사용하는곳 : DeleteCustomerController
+	public int deleteCustomer(int customerCode) {
+		
+		int resultRow = 0;
+		
+		Connection conn = null;
+		
+		try {
+			
+			conn = DBUtil.getConnection();
+			conn.setAutoCommit(false);
+
+			this.customerDao = new CustomerDao();
+			resultRow = this.customerDao.deleteCustomer(conn, customerCode);
 			conn.commit();
 			
 		} catch (Exception e) {
@@ -194,12 +237,13 @@ public class EmpService {
 		
 	}
 	
-	
-	// emp 삭제
-	// 사용하는곳 : DeleteEmpController
-	public int deleteEmp(int empCode) {
+	// customer 추가 -> 회원 가입
+	// 사용하는 곳 : AddCustomerController
+	public int addCustomer(Customer customer, PwHistory pwHistory, CustomerAddress customerAddress) {
 		
 		int resultRow = 0;
+		int resultRowAddress = 0;
+		int resultRowPw = 0;
 		
 		Connection conn = null;
 		
@@ -208,48 +252,14 @@ public class EmpService {
 			conn = DBUtil.getConnection();
 			conn.setAutoCommit(false);
 
-			this.empDao = new EmpDao();
-			resultRow = this.empDao.deleteEmp(conn, empCode);
-			conn.commit();
+			this.customerDao = new CustomerDao();
+			this.customerAddressDao = new CustomerAddressDao();
+			this.pwHistoryDao = new PwHistoryDao();
 			
-		} catch (Exception e) {
 			
-			try {
-				conn.rollback();
-			} catch (SQLException e1) {
-				e1.printStackTrace();
-			}
-			
-			e.printStackTrace();
-			
-		} finally {
-			try {
-				conn.close();
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return resultRow;
-		
-	}
-	
-	// emp 추가 -> 회원 가입
-	// 사용하는 곳 : AddEmpController
-	public int addEmp(Emp emp) {
-		
-		int resultRow = 0;
-		
-		Connection conn = null;
-		
-		try {
-			
-			conn = DBUtil.getConnection();
-			conn.setAutoCommit(false);
-
-			this.empDao = new EmpDao();
-			
-			resultRow = this.empDao.addEmp(conn, emp);
+			resultRow = this.customerDao.addCustomer(conn, customer);
+			resultRowAddress = this.customerAddressDao.addAddreses(conn, customerAddress);
+			resultRowPw = this.pwHistoryDao.addPwHistory(conn, pwHistory);
 			
 			conn.commit();
 			
@@ -275,6 +285,22 @@ public class EmpService {
 		return resultRow;
 		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	
 	
 	
