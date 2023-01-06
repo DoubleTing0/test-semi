@@ -9,6 +9,7 @@ import dao.CustomerAddressDao;
 import dao.CustomerDao;
 import dao.PwHistoryDao;
 import util.DBUtil;
+import util.Page;
 import vo.Customer;
 import vo.CustomerAddress;
 import vo.PwHistory;
