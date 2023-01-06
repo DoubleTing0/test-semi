@@ -16,8 +16,6 @@ import vo.PwHistory;
 public class CustomerService {
 
 	private CustomerDao customerDao;
-	private CustomerAddressDao customerAddressDao;	// 회원가입 때 사용
-	private PwHistoryDao pwHistoryDao;				// 회원가입 때 사용
 	
 	// CustomerList 출력
 	// 사용하는 곳 : CustomerListController
@@ -239,11 +237,9 @@ public class CustomerService {
 	
 	// customer 추가 -> 회원 가입
 	// 사용하는 곳 : AddCustomerController
-	public int addCustomer(Customer customer, PwHistory pwHistory, CustomerAddress customerAddress) {
+	public int addCustomer(Customer customer) {
 		
 		int resultRow = 0;
-		int resultRowAddress = 0;
-		int resultRowPw = 0;
 		
 		Connection conn = null;
 		
@@ -253,13 +249,8 @@ public class CustomerService {
 			conn.setAutoCommit(false);
 
 			this.customerDao = new CustomerDao();
-			this.customerAddressDao = new CustomerAddressDao();
-			this.pwHistoryDao = new PwHistoryDao();
-			
 			
 			resultRow = this.customerDao.addCustomer(conn, customer);
-			resultRowAddress = this.customerAddressDao.addAddreses(conn, customerAddress);
-			resultRowPw = this.pwHistoryDao.addPwHistory(conn, pwHistory);
 			
 			conn.commit();
 			

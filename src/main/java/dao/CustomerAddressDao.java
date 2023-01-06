@@ -9,7 +9,7 @@ public class CustomerAddressDao {
 
 	// 주소 추가
 	// 사용하는 곳 : AddCustomerController, 추후에 배송지추가할 때
-	public int addAddreses(Connection conn, CustomerAddress customerAddress) throws Exception {
+	public int addAddress(Connection conn, CustomerAddress customerAddress) throws Exception {
 		
 		int resultRow = 0;
 		

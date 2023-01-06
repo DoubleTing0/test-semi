@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import service.CustomerAddressService;
 import service.CustomerService;
+import service.PwHistoryService;
 import vo.Customer;
 import vo.CustomerAddress;
 import vo.PwHistory;
@@ -17,6 +19,8 @@ import vo.PwHistory;
 public class AddCustomerController extends HttpServlet {
 	
 	private CustomerService customerService;
+	private PwHistoryService pwHistoryService;
+	private CustomerAddressService customerAddressService;
 	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
@@ -62,19 +66,26 @@ public class AddCustomerController extends HttpServlet {
 		customerAddress.setCustomerId(customerId);
 		customerAddress.setAddress(address);
 		
+		// customer 추가
 		this.customerService = new CustomerService();
-		int resultRow = this.customerService.addCustomer(customer, pwHistory, customerAddress);
+		int resultRowC = this.customerService.addCustomer(customer);
+
+		// 비밀번호 이력 추가
+		this.pwHistoryService = new PwHistoryService();
+		int resultRowP = this.pwHistoryService.addPwHistory(pwHistory);
 		
+		// 주소 추가
+		this.customerAddressService = new CustomerAddressService();
+		int resultRowCA = this.customerAddressService.addAddress(customerAddress);
 		
+		if(resultRowC == 1 && resultRowP == 1 && resultRowCA ==1) {
+			
+			// 회원가입 성공시
+			
+		}
 		
 		// 실제로는 로그인 화면으로 가야함
 		response.sendRedirect(request.getContextPath() + "/home");
-		
-		
-		
-		
-		
-		
 		
 		
 	}
