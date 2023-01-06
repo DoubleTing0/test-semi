@@ -155,17 +155,17 @@ public class CustomerDao {
 	
 	// customer 삭제
 	// 사용하는 곳 : DeleteCustomerController
-	public int deleteCustomer(Connection conn, int customerCode) throws Exception {
+	public int deleteCustomer(Connection conn, Customer customer) throws Exception {
 		
 		int resultRow = 0;
 		
 		String sql = "DELETE"
 				+ "	 FROM customer"
-				+ "	 WHERE customer_code = ?";
+				+ "	 WHERE customer_id = ?";
 		
 		PreparedStatement stmt = conn.prepareStatement(sql);
 		
-		stmt.setInt(1, customerCode);
+		stmt.setString(1, customer.getCustomerId());
 		
 		resultRow = stmt.executeUpdate();
 		

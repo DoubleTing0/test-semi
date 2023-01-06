@@ -172,7 +172,7 @@
 								<a href = "${pageContext.request.contextPath }/customer/updateCustomer?customerCode=${customer.customerCode }">수정</a>
 							</td>
 							<td>
-								<a href = "${pageContext.request.contextPath }/customer/deleteCustomer?customerCode=${customer.customerCode }">삭제</a>
+								<a href = "${pageContext.request.contextPath }/customer/deleteCustomer?customerId=${customer.customerId }">삭제</a>
 							</td>
 						</tr>
 					</c:forEach>

@@ -199,7 +199,7 @@ public class CustomerService {
 	
 	// customer 삭제
 	// 사용하는곳 : DeleteCustomerController
-	public int deleteCustomer(int customerCode) {
+	public int deleteCustomer(Customer customer) {
 		
 		int resultRow = 0;
 		
@@ -211,7 +211,7 @@ public class CustomerService {
 			conn.setAutoCommit(false);
 
 			this.customerDao = new CustomerDao();
-			resultRow = this.customerDao.deleteCustomer(conn, customerCode);
+			resultRow = this.customerDao.deleteCustomer(conn, customer);
 			conn.commit();
 			
 		} catch (Exception e) {
