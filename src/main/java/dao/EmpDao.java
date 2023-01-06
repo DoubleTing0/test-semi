@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import vo.Emp;
 
@@ -245,6 +244,33 @@ public class EmpDao {
 		return resultRow;
 		
 	}
+	
+	
+	// 1) emp ID 중복확인
+	// true : ID가 이미 존재(가입불가) false : ID 사용 가능(가입가능)
+	// 사용하는 곳 : AddCustomerController, AddEmpController
+	public boolean checkEmpId(Connection conn, Emp emp) throws Exception {
+		
+		boolean result = false;
+		
+		String sql = "SELECT emp_id empId"
+				+ "	 FROM emp"
+				+ "	 WHERE emp_id = ?";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.setString(1, emp.getEmpId());
+		
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			result = true;
+		}
+		
+		return result;
+		
+	}
+	
 	
 	
 }
