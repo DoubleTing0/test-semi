@@ -1,6 +1,6 @@
 package dao;
 
-import java.sql.Connection;
+import java.sql.Connection;	
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
@@ -250,7 +250,32 @@ public class CustomerDao {
 		
 	}
 	
-	
+	// 비밀번호 확인
+	// 사용하는 곳 : UpdateCustomerPwController,
+	// true : 비밀번호 일치(메뉴사용가능) / false : 불일치(메뉴사용불가)
+	public boolean checkPw(Connection conn, Customer customer) throws Exception {
+		
+		boolean result = false;
+		
+		String sql = "SELECT customer_id"
+				+ "	 FROM customer"
+				+ "	 WHERE customer_id = ?"
+				+ "		 AND customer_pw = PASSWORD(?)";
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+		
+		stmt.setString(1, customer.getCustomerId());
+		stmt.setString(2, customer.getCustomerPw());
+		
+		ResultSet rs = stmt.executeQuery();
+		
+		if(rs.next()) {
+			result = true;
+		}
+		
+		return result;
+		
+	}
 	
 	
 	
